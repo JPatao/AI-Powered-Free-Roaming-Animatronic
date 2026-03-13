@@ -55,7 +55,7 @@ class Animatronic:
                 print("default state")
 
     def process_idle(self):
-        print("idle")
+        #print("idle")
         #run walk around code
         for activation in ACTIVATION_PHRASES:
             if activation in self.listen.get_interim():
@@ -106,4 +106,4 @@ if __name__ == "__main__":
             if anim.process():
                 break
     finally:
-        anim.face.end()
+        anim.shutdown()

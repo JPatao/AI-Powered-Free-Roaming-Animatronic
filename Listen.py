@@ -24,7 +24,7 @@ class ListenInterface:
     last_statement = ""
     interim_stmt = ""
 
-    def __init__(self, energy_threshold=100):
+    def __init__(self, energy_threshold=1000):
         self.api_key = "ca7dba3ab4c5408fb843ed43228ec057"
         self.energy_threshold = energy_threshold
         self._stop_event = Event()
@@ -140,7 +140,7 @@ class ListenInterface:
 
 
 def main():
-    listener = ListenInterface(energy_threshold=500)
+    listener = ListenInterface(energy_threshold=1000)
     listener.begin_listen()
 
     try:
