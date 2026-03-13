@@ -110,15 +110,18 @@ class Face():
             if os.path.exists(folder):
                 files = sorted([f for f in os.listdir(folder) if f.lower().endswith(".png")])
                 for f in files:
-                    img = Image.open(os.path.join(folder, f))
+                    img = Image.open(os.path.join(folder, f)).convert("RGB")
 
-                    # Scale to fit screen while preserving aspect ratio
-                    img.thumbnail((bg_width, bg_height), Image.LANCZOS)
+                    # Scale to fit screen (both up and down) preserving aspect ratio
+                    scale = min(bg_width / img.width, bg_height / img.height)
+                    new_w = int(img.width * scale)
+                    new_h = int(img.height * scale)
+                    img = img.resize((new_w, new_h), Image.LANCZOS)
 
-                    # Create black background and paste centered
+                    # Paste centered on black canvas
                     background = Image.new("RGB", (bg_width, bg_height), (0, 0, 0))
-                    offset_x = (bg_width - img.width) // 2
-                    offset_y = (bg_height - img.height) // 2
+                    offset_x = (bg_width - new_w) // 2
+                    offset_y = (bg_height - new_h) // 2
                     background.paste(img, (offset_x, offset_y))
 
                     frame = cv2.cvtColor(np.array(background), cv2.COLOR_RGB2BGR)
