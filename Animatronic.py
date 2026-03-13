@@ -4,6 +4,7 @@ from AI import AI_Interface
 from Listen import ListenInterface
 from faces import Face
 from Speak import SpeechInterface
+from Movement import walk
 
 
 ACTIVATION_PHRASES = ["hello robot"]
@@ -56,12 +57,12 @@ class Animatronic:
 
     def process_idle(self):
         #print("idle")
-        #run walk around code
         for activation in ACTIVATION_PHRASES:
             if activation in self.listen.get_interim():
                 self.response = "Greetings! I’m Boxley. It’s lovely to meet you. Do you need assistance finding something today?"
                 self.state = States.SPEAK
                 self.face.talk_event.set()
+                walk()
 
         
     def process_listen(self):
