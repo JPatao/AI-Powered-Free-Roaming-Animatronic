@@ -27,6 +27,7 @@ class Face():
         self.process.terminate()
 
     def get_screen_resolution(self):
+        return 1920, 1080  # safe default
         """Detect actual screen resolution at runtime."""
         try:
             # Try to get resolution from xrandr
