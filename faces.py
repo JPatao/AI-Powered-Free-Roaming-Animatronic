@@ -11,7 +11,7 @@ class BotStates:
     THINKING = "thinking"
     TALKING = "talking"
 
-BG_WIDTH, BG_HEIGHT = 1920, 1080
+BG_WIDTH, BG_HEIGHT = 2160, 1620 #1920, 1080
 
 class Face():
     

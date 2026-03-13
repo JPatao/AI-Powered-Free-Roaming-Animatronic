@@ -6,6 +6,7 @@ from faces import Face
 from Speak import SpeechInterface
 from Movement import walk
 import bot_move
+import squat_test
 import random
 
 
@@ -66,7 +67,8 @@ class Animatronic:
                 self.response = "Greetings! I’m Boxley. It’s lovely to meet you. Do you need assistance finding something today?"
                 self.state = States.SPEAK
                 self.face.talk_event.set()
-                bot_move.run_walk(steps = 4)
+                #bot_move.run_walk(steps = 4)
+                squat_test.squat()
 
         
     def process_listen(self):
