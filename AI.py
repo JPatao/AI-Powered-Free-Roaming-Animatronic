@@ -38,8 +38,8 @@ class AI_Interface:
             data = response.json()
             # Iterate through rides
             for land in data['lands']:
-            for ride in land['rides']:
-                 ret_str += f"Ride: {ride['name']}, Wait: {ride['wait_time']} mins \n"
+                for ride in land['rides']:
+                     ret_str += f"Ride: {ride['name']}, Wait: {ride['wait_time']} mins \n"
         else:
             ret_str += "Failed to retrieve data \n"
         return ret_str
