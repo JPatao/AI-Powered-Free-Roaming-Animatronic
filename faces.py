@@ -12,37 +12,72 @@ class BotStates:
     TALKING = "talking"
 
 class Face():
-    BG_WIDTH, BG_HEIGHT = 1680, 1050
-    
     def __init__(self):
         self.think_event = Event()
         self.walk_event = Event()
         self.talk_event = Event()
         self.idle_event = Event()
-        events = (self.think_event,self.walk_event,self.talk_event,self.idle_event,)
-        self.process = Process(target = self.run, args = events, daemon = True)
+        events = (self.think_event, self.walk_event, self.talk_event, self.idle_event)
+        self.process = Process(target=self.run, args=events, daemon=True)
 
     def start(self):
-            self.process.start()
+        self.process.start()
 
     def end(self):
         self.process.terminate()
-    
-    def run(self,think,walk,talk,idle):
-        animations = self.load_animations()
+
+    def get_screen_resolution(self):
+        """Detect actual screen resolution at runtime."""
+        try:
+            # Try to get resolution from xrandr
+            import subprocess
+            output = subprocess.check_output(['xrandr']).decode()
+            for line in output.splitlines():
+                if '*' in line:  # current resolution has asterisk
+                    res = line.strip().split()[0]
+                    w, h = res.split('x')
+                    return int(w), int(h)
+        except Exception:
+            pass
+        # Fallback: open a temp window to detect screen size
+        try:
+            tmp = cv2.namedWindow("tmp", cv2.WINDOW_NORMAL)
+            cv2.setWindowProperty("tmp", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+            w = cv2.getWindowImageRect("tmp")[2]
+            h = cv2.getWindowImageRect("tmp")[3]
+            cv2.destroyWindow("tmp")
+            if w > 0 and h > 0:
+                return w, h
+        except Exception:
+            pass
+        return 1920, 1080  # safe default
+
+    def run(self, think, walk, talk, idle):
+        # Fix: ensure DISPLAY is set for the subprocess on Linux
+        if 'DISPLAY' not in os.environ:
+            os.environ['DISPLAY'] = ':0'
+
+        # Detect real screen size instead of hardcoding
+        BG_WIDTH, BG_HEIGHT = self.get_screen_resolution()
+        print(f"[Face] Using resolution: {BG_WIDTH}x{BG_HEIGHT}")
+
+        animations = self.load_animations(BG_WIDTH, BG_HEIGHT)
         current_state = BotStates.IDLE
         current_frame_index = 0
 
-        cv2.namedWindow("Box Robot", cv2.WND_PROP_FULLSCREEN)
+        # Fix: create window BEFORE setting fullscreen property
+        cv2.namedWindow("Box Robot", cv2.WINDOW_NORMAL)
         cv2.setWindowProperty("Box Robot", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
         while True:
             frames = animations.get(current_state, animations[BotStates.IDLE])
             if frames:
-                frame = frames[current_frame_index]
+                frame = frames[current_frame_index % len(frames)]
                 cv2.imshow("Box Robot", frame)
                 current_frame_index = (current_frame_index + 1) % len(frames)
-            key = cv2.waitKey(30) & 0xFF
+
+            cv2.waitKey(1)  # Must be called to pump GUI events; keep it short
+
             if think.is_set():
                 current_state = BotStates.THINKING
                 current_frame_index = 0
@@ -59,24 +94,23 @@ class Face():
                 current_state = BotStates.IDLE
                 current_frame_index = 0
                 idle.clear()
+
             delay = 0.25 if current_state == BotStates.TALKING else 0.5
             time.sleep(delay)
+
         cv2.destroyAllWindows()
 
-
-    def load_animations(self):
+    def load_animations(self, bg_width, bg_height):
         base_path = "faces"
         states = ["idle", "walking", "thinking", "talking"]
         animations = {}
-
         for state in states:
             folder = os.path.join(base_path, state)
             animations[state] = []
-
             if os.path.exists(folder):
                 files = sorted([f for f in os.listdir(folder) if f.lower().endswith(".png")])
                 for f in files:
-                    img = Image.open(os.path.join(folder, f)).resize((self.BG_WIDTH, self.BG_HEIGHT))
+                    img = Image.open(os.path.join(folder, f)).resize((bg_width, bg_height))
                     frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
                     animations[state].append(frame)
         return animations
