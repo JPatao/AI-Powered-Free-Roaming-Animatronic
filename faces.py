@@ -110,8 +110,18 @@ class Face():
             if os.path.exists(folder):
                 files = sorted([f for f in os.listdir(folder) if f.lower().endswith(".png")])
                 for f in files:
-                    img = Image.open(os.path.join(folder, f)).resize((bg_width, bg_height))
-                    frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+                    img = Image.open(os.path.join(folder, f))
+
+                    # Scale to fit screen while preserving aspect ratio
+                    img.thumbnail((bg_width, bg_height), Image.LANCZOS)
+
+                    # Create black background and paste centered
+                    background = Image.new("RGB", (bg_width, bg_height), (0, 0, 0))
+                    offset_x = (bg_width - img.width) // 2
+                    offset_y = (bg_height - img.height) // 2
+                    background.paste(img, (offset_x, offset_y))
+
+                    frame = cv2.cvtColor(np.array(background), cv2.COLOR_RGB2BGR)
                     animations[state].append(frame)
         return animations
 
