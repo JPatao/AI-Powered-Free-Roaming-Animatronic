@@ -5,6 +5,7 @@ from Listen import ListenInterface
 from faces import Face
 from Speak import SpeechInterface
 from Movement import walk
+import bot_move
 import random
 
 
@@ -26,7 +27,7 @@ class Animatronic:
     def __init__(self):
         self.state = States.IDLE
         self.ai = AI_Interface()
-        self.listen = ListenInterface()
+        self.listen = ListenInterface(energy_threshold = 2000)
         self.face = Face()
         self.face.start()
         self.listen.begin_listen()
@@ -65,7 +66,7 @@ class Animatronic:
                 self.response = "Greetings! I’m Boxley. It’s lovely to meet you. Do you need assistance finding something today?"
                 self.state = States.SPEAK
                 self.face.talk_event.set()
-                walk()
+                bot_move.run_walk(steps = 4)
 
         
     def process_listen(self):
