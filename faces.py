@@ -11,7 +11,10 @@ class BotStates:
     THINKING = "thinking"
     TALKING = "talking"
 
+BG_WIDTH, BG_HEIGHT = 1920, 1080
+
 class Face():
+    
     def __init__(self):
         self.think_event = Event()
         self.walk_event = Event()
@@ -26,40 +29,12 @@ class Face():
     def end(self):
         self.process.terminate()
 
-    def get_screen_resolution(self):
-        return 1920, 1080  # safe default
-        """Detect actual screen resolution at runtime."""
-        try:
-            # Try to get resolution from xrandr
-            import subprocess
-            output = subprocess.check_output(['xrandr']).decode()
-            for line in output.splitlines():
-                if '*' in line:  # current resolution has asterisk
-                    res = line.strip().split()[0]
-                    w, h = res.split('x')
-                    return int(w), int(h)
-        except Exception:
-            pass
-        # Fallback: open a temp window to detect screen size
-        try:
-            tmp = cv2.namedWindow("tmp", cv2.WINDOW_NORMAL)
-            cv2.setWindowProperty("tmp", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-            w = cv2.getWindowImageRect("tmp")[2]
-            h = cv2.getWindowImageRect("tmp")[3]
-            cv2.destroyWindow("tmp")
-            if w > 0 and h > 0:
-                return w, h
-        except Exception:
-            pass
-        return 1920, 1080  # safe default
-
     def run(self, think, walk, talk, idle):
         # Fix: ensure DISPLAY is set for the subprocess on Linux
         if 'DISPLAY' not in os.environ:
             os.environ['DISPLAY'] = ':0'
 
         # Detect real screen size instead of hardcoding
-        BG_WIDTH, BG_HEIGHT = self.get_screen_resolution()
         print(f"[Face] Using resolution: {BG_WIDTH}x{BG_HEIGHT}")
 
         animations = self.load_animations(BG_WIDTH, BG_HEIGHT)
