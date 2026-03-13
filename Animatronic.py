@@ -59,10 +59,9 @@ class Animatronic:
         #run walk around code
         for activation in ACTIVATION_PHRASES:
             if activation in self.listen.get_interim():
-                self.state = States.THINK
-                self.think_stmt = activation
-                self.last_stmt = ""
-                self.face.think_event.set()
+                self.response = "Greetings! I’m Boxley. It’s lovely to meet you. Do you need assistance finding something today?"
+                self.state = States.SPEAK
+                self.face.talk_event.set()
 
         
     def process_listen(self):
