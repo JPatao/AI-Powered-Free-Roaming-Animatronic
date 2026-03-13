@@ -5,11 +5,14 @@ from Listen import ListenInterface
 from faces import Face
 from Speak import SpeechInterface
 from Movement import walk
+import random
 
 
 ACTIVATION_PHRASES = ["hello robot"]
 SHUTDOWN_PHRASES = ["stop robot"]
 
+
+THINK_PHRASES = ["Hmmm", "Let me check!", "One moment, please.", "Good question."]
 
 class States(Enum):
     IDLE = 0
@@ -78,6 +81,7 @@ class Animatronic:
         
     def process_think(self):
         print("think")
+        self.speak.say(random.choice(THINK_PHRASES))
         self.response = self.ai.prompt(self.think_stmt)
         self.state = States.SPEAK
         self.face.talk_event.set()
