@@ -18,7 +18,7 @@ from playsound3 import playsound
 
 class SpeechInterface:
     def __init__(self):
-        self.voice = PiperVoice.load("C:/SeniorDesign/en_US-hfc_male-medium.onnx")
+        self.voice = PiperVoice.load("./en_US-hfc_male-medium.onnx")
 
     def say(self,text):
         with wave.open("temp.wav", "wb") as wav_file:
